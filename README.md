@@ -1,5 +1,5 @@
 # I like my lockscreen wallpaper
-A simple Python script that places the Microsoft Spotlight [read more here](https://en.wikipedia.org/wiki/Windows_Spotlight) lock screen wallpapers, in your Pictures folder.
+A simple Python script that places the Microsoft Spotlight [(read more)](https://en.wikipedia.org/wiki/Windows_Spotlight) lock screen wallpapers, in your Pictures folder.
 
 Briefly, this script:
 1. Retrieves the already existing image files, which are located in a standard directory in Windows (`WIN_WALLPAPER_PATH` variable in the script)
