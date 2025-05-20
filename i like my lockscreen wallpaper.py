@@ -6,9 +6,9 @@ import string
 import time
 from PIL import Image
 
-user_name: str = os.getlogin()
-wallpaper_folder_path: str = rf'C:/Users/{user_name}/Pictures/wallpapers/lockscreen/'  # rf (ή fr): raw fstring
-win_wallpaper_path: str = rf'C:/Users/{user_name}/AppData/Local/Packages/Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy/LocalState/Assets/'
+USER_NAME: str = os.getlogin()
+WIN_WALLPAPER_PATH: str = rf'C:/Users/{USER_NAME}/AppData/Local/Packages/Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy/LocalState/Assets/'
+final_wallpaper_path: str = rf'C:/Users/{USER_NAME}/Pictures/wallpapers/lockscreen/'  # rf (or fr): raw fstring
 
 
 def timeit(func: callable):
@@ -50,7 +50,7 @@ def remove_portrait_images(path: str) -> None:
 
     for file_name in file_list:
         image = Image.open(path + file_name)
-        image.close()  # IMPORTANT STEP! otherwise the file cannot be deleted because its open by PIL
+        image.close()  # IMPORTANT STEP! otherwise the file cannot be deleted because it's open by PIL
         width, height = image.size
 
         if width == 1080 and height == 1920:
@@ -59,7 +59,7 @@ def remove_portrait_images(path: str) -> None:
 
 
 @timeit
-def remove_duplicates(path: str = wallpaper_folder_path) -> None:
+def remove_duplicates(path: str = final_wallpaper_path) -> None:
     """
     Removes duplicate images, based on the notion that two identical files share the same hash.
     Here we use SHA-1, to create an identity for each image. A set which contains hashes is periodically being built. If
@@ -72,10 +72,7 @@ def remove_duplicates(path: str = wallpaper_folder_path) -> None:
     file_list: list[str] = os.listdir(path)
 
     hash_set: set[bytes] = set()
-    # We use sets because searching, inserting and deleting an object from a set is much more efficient than a list.
-    # We just need a collection of different items to iterate through to see if another picture has the same value as
-    # an already existing item in this set, if there exist, the picture is deleted, otherwise we add that hash to the
-    # list
+    # We use sets instead of lists because searching, inserting and deleting an object from a set is more efficient.
 
     for file_name in file_list:
         digest: bytes = hashlib.sha1(open(path + file_name, 'rb').read()).digest()
@@ -89,8 +86,8 @@ def remove_duplicates(path: str = wallpaper_folder_path) -> None:
 
 @timeit
 def main() -> list[str]:
-    path: str = win_wallpaper_path
-    new_path: str = wallpaper_folder_path
+    path: str = WIN_WALLPAPER_PATH
+    new_path: str = final_wallpaper_path
     file_list: list[str] = os.listdir(path)
 
     if not os.path.exists(new_path):
@@ -103,31 +100,15 @@ def main() -> list[str]:
         if image.width == 1920 and image.height == 1080 and not file_name.endswith('jpg'):
             shutil.copy(path + file_name, new_path + file_name)
             new_name: str = rnd_name_gen()
-            os.rename(new_path + file_name, new_path + str(new_name) + '.jpg')
-    
-    # return file_list
+            os.rename(new_path + file_name, new_path + str(new_name) + '.jpg')    
+    return file_list
 
 
 if __name__ == "__main__":  # https://www.youtube.com/watch?v=g_wlZ9IhbTs
 
-    # t1, file_list = main()
-    t1 = main()
+    t1, file_list = main()
     t2 = remove_duplicates()
-    t3 = remove_portrait_images(wallpaper_folder_path)
+    t3 = remove_portrait_images(final_wallpaper_path)
 
     print(f'Total Elapsed time: {t1+t2+t3:.3f} sec')
-
-
-    # alternatively:
-    # t = main() + remove_duplicates() + remove_portrait_images(wallpaper_folder_path)
-    # print(f'Total Elapsed time: {t:.3f} sec')
-
-
-
-
-    # print('ok')
-    # try:
-    #     main()
-    #     remove_duplicates()
-    # except ModuleNotFoundError as e:
-    #     print(f"Error, the following exception was raised: {e}")
+    time.sleep(1.5)
