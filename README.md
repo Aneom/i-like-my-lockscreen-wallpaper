@@ -10,8 +10,7 @@ Briefly, this script:
 
 ## Prerequisites
 
-* Python Imaging Library (`PIL`) 
-Do `pip install pillow` in the command line if you don't have it.
+* Python Imaging Library (PIL) (do `pip install pillow` in the command line if you don't have it installed)
 
 ## Future Plans
 
