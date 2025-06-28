@@ -7,8 +7,8 @@ import time
 from PIL import Image
 
 USER_NAME: str = os.getlogin()
-WIN_WALLPAPER_PATH: str = rf'C:/Users/{USER_NAME}/AppData/Local/Packages/Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy/LocalState/Assets/'
-final_wallpaper_path: str = rf'C:/Users/{USER_NAME}/Pictures/wallpapers/lockscreen/'  # rf (or fr): raw fstring
+WIN_WALLPAPER_PATH: str = f'C:/Users/{USER_NAME}/AppData/Local/Packages/Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy/LocalState/Assets/'
+final_wallpaper_path: str = f'C:/Users{USER_NAME}/Pictures/wallpapers/lockscreen/'
 
 
 def timeit(func: callable):
@@ -106,9 +106,10 @@ def main() -> list[str]:
 
 if __name__ == "__main__":  # https://www.youtube.com/watch?v=g_wlZ9IhbTs
 
+    t1 = t2 = t3 = 0  # in case one of the t's is removed the program still executes without errors
     t1, file_list = main()
     t2 = remove_duplicates()
-    t3 = remove_portrait_images(final_wallpaper_path)
+    # t3 = remove_portrait_images(final_wallpaper_path)  # not needed since portrait images are filtered out at main()
 
     print(f'Total Elapsed time: {t1+t2+t3:.3f} sec')
     time.sleep(1.5)
