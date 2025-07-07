@@ -8,7 +8,7 @@ from PIL import Image
 
 USER_NAME: str = os.getlogin()
 WIN_WALLPAPER_PATH: str = f'C:/Users/{USER_NAME}/AppData/Local/Packages/Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy/LocalState/Assets/'
-final_wallpaper_path: str = f'C:/Users{USER_NAME}/Pictures/wallpapers/lockscreen/'
+final_wallpaper_path: str = f'C:/Users/{USER_NAME}/Pictures/wallpapers/lockscreen/'
 
 
 def timeit(func: callable):
