@@ -39,6 +39,26 @@ def rnd_name_gen(length=16, char_pool=string.ascii_lowercase + string.digits) ->
     return rnd_name
 
 
+def append_file_ext(file_path: str) -> str:
+    """
+    Read the file bytes and return the appropriate file extension (e.g. .jpg, .png, .bmp)
+    """
+    with open(file_path, 'rb') as f:
+        file_bytes = f.read(5)  # read the first 5 bytes, they are enough
+        f.close()
+
+    sig_dict = {'.jpg': 'FF D8 FF',
+                '.png': '89 50 4E',
+                '.bmp': '42 4D'}
+    
+    for file_ext in sig_dict:
+        if file_bytes.startswith(bytes.fromhex(sig_dict[file_ext])):
+            return file_ext
+        else:
+            print(f'WARNING, file={file_path}\nhas unknown file signature. Default used (".jpg")')
+            return '.jpg'
+
+
 @timeit
 def remove_portrait_images(path: str) -> None:
     """
@@ -75,41 +95,51 @@ def remove_duplicates(path: str = final_wallpaper_path) -> None:
     # We use sets instead of lists because searching, inserting and deleting an object from a set is more efficient.
 
     for file_name in file_list:
-        digest: bytes = hashlib.sha1(open(path + file_name, 'rb').read()).digest()
+        with open(os.path.join(path,file_name), 'rb') as f:
+            file_bytes = f.read()
+        digest: bytes = hashlib.sha1(file_bytes).digest()
 
         if digest not in hash_set:
             hash_set.add(digest)
         else:
-            os.remove(path + file_name)
+            os.remove(os.path.join(path,file_name))
     return
 
 
 @timeit
-def main() -> list[str]:
-    path: str = WIN_WALLPAPER_PATH
-    new_path: str = final_wallpaper_path
-    file_list: list[str] = os.listdir(path)
+def get_wallpaper_imgs(path: str = WIN_WALLPAPER_PATH,
+                       new_path: str = final_wallpaper_path) -> list[str]:
+    """
+    Retrieves the wallpaper images from `new_path` and appends the appropriate file extension at the end of each file
+    """
+    dir_list: list[str] = os.listdir(path)  # contains both files and directories
+    file_list: list[str] = [entry for entry in dir_list if os.path.isfile(os.path.join(path, entry))] # contains only files
 
     if not os.path.exists(new_path):
         os.makedirs(new_path)
 
     for file_name in file_list:
-        image = Image.open(path + file_name)
+        try:
+            image = Image.open(os.path.join(path, file_name))
+        except Image.UnidentifiedImageError:
+            continue
         image.close()
 
-        if image.width == 1920 and image.height == 1080 and not file_name.endswith('jpg'):
-            shutil.copy(path + file_name, new_path + file_name)
+        if image.width == 1920 and image.height == 1080:  # if image is landscape of size 1920x1080
             new_name: str = rnd_name_gen()
-            os.rename(new_path + file_name, new_path + str(new_name) + '.jpg')    
+            file_ext: str = append_file_ext(os.path.join(path, file_name))
+            new_file_name = new_name + file_ext
+
+            shutil.copy(os.path.join(path, file_name), os.path.join(new_path, new_file_name))
     return file_list
 
 
 if __name__ == "__main__":  # https://www.youtube.com/watch?v=g_wlZ9IhbTs
 
     t1 = t2 = t3 = 0  # in case one of the t's is removed the program still executes without errors
-    t1, file_list = main()
+    t1, file_list = get_wallpaper_imgs()
     t2 = remove_duplicates()
     # t3 = remove_portrait_images(final_wallpaper_path)  # not needed since portrait images are filtered out at main()
-
+    
     print(f'Total Elapsed time: {t1+t2+t3:.3f} sec')
     time.sleep(1.5)
