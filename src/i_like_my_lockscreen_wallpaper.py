@@ -5,24 +5,23 @@ import shutil
 import string
 import time
 from PIL import Image
+from typing import Callable, Tuple, Any
+import functools
 
 USER_NAME: str = os.getlogin()
 WIN_WALLPAPER_PATH: str = f'C:/Users/{USER_NAME}/AppData/Local/Packages/Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy/LocalState/Assets/'
 final_wallpaper_path: str = f'C:/Users/{USER_NAME}/Pictures/wallpapers/lockscreen/'
 
 
-def timeit(func: callable):
-    def wrapper(*args, **kwargs):
+def timeit(func: Callable):
+    def wrapper(*args, **kwargs) -> Tuple[float, Any]:
         t0 = time.time()
         ret = func(*args, **kwargs)
         t = time.time() - t0
 
         print(f'Function "{func.__name__}" took: {t:.3f} sec')
         
-        if ret is None:
-            return t
-        else: 
-            return t, ret
+        return t, ret
     return wrapper
 
 
@@ -54,9 +53,9 @@ def append_file_ext(file_path: str) -> str:
     for file_ext in sig_dict:
         if file_bytes.startswith(bytes.fromhex(sig_dict[file_ext])):
             return file_ext
-        else:
-            print(f'WARNING, file={file_path}\nhas unknown file signature. Default used (".jpg")')
-            return '.jpg'
+        
+    print(f'WARNING, file={file_path}\nhas unknown file signature. Default used (".jpg")')
+    return '.jpg'
 
 
 @timeit
@@ -138,7 +137,7 @@ if __name__ == "__main__":  # https://www.youtube.com/watch?v=g_wlZ9IhbTs
 
     t1 = t2 = t3 = 0  # in case one of the t's is removed the program still executes without errors
     t1, file_list = get_wallpaper_imgs()
-    t2 = remove_duplicates()
+    t2, _ = remove_duplicates()
     # t3 = remove_portrait_images(final_wallpaper_path)  # not needed since portrait images are filtered out at main()
     
     print(f'Total Elapsed time: {t1+t2+t3:.3f} sec')
